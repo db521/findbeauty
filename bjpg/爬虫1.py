@@ -5,7 +5,9 @@ def schedule(a,b,c):#显示下载进度
   per = 100.0*a*b/c#  a:已经下载的数据块
   if per > 100 :#b:数据块的大小
     per = 100#  c:远程文件的大小
-  print '%.2f%%' % per
+  print('%.2f%%' % per)
+
+
 def getHtml(url):
   page = urllib.urlopen(url)
   html = page.read()
@@ -26,11 +28,11 @@ def downloadImg(html):
   x = 0
   for imgurl in imglist:
         target = picpath+'\\%s.jpg' % x
-        print 'Downloading image to location: ' + target + '\nurl=' + imgurl
+        print('Downloading image to location: ' + target + '\nurl=' + imgurl)
         image = urllib.urlretrieve(imgurl, target, schedule)
         x += 1
         return image
 if __name__ == '__main__':
   html = getHtml("http://www.baidu.com")
   downloadImg(html)
-  print "Download has finished."
+  print("Download has finished.")

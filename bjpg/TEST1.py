@@ -27,12 +27,12 @@ def PreDownloadImg(AnalysisPage):
     ImgNameResult=re.search(ImgNameRe,WaitAnalysisPage.text).group(2)
     UrlSet=set(RegUrlResult)
     for EachUrl in UrlSet:
-        print "当前页面是",EachUrl
-        print "当前主题的图片个数是",len(RegSumResult)
-        print "当前页面的标题是",ImgNameResult
+        print("当前页面是", EachUrl)
+        print("当前主题的图片个数是", len(RegSumResult))
+        print("当前页面的标题是", ImgNameResult)
         for num in NumResult:
             RegUrlSec=ImgNumRe.sub('/'+str(num)+'.jpg',EachUrl)
-            print "当前页面相关的URL是",RegUrlSec
+            print("当前页面相关的URL是", RegUrlSec)
             # DownloadImg(RegUrlSec,ImgNameResult)
 
 def DownloadImg(ImgUrl,ImgName):
@@ -49,7 +49,9 @@ def DownloadImg(ImgUrl,ImgName):
 
         CreateFolder(ImgPath)
         with open(ImgPath+ImgName, 'wb') as f: f.write(ImgContent)
-        print "正在下载",ImgUrl,"页面的图片",ImgName
+        print("正在下载", ImgUrl, "页面的图片", ImgName)
+
+
 def CreateFolder(FolderPath):
     """创建图片目录"""
     if not os.path.exists(FolderPath):
@@ -60,8 +62,8 @@ FindUrlResult=FindUrl(HomePage)
 #把结果使用extend方法写入到首页url列表中
 HomePageUrl.extend(FindUrlResult)
 UrlSet=set(HomePageUrl)
-print "UrlSet的内容是",UrlSet
-print "首页页面URL数量是",len(UrlSet)
+print("UrlSet的内容是", UrlSet)
+print("首页页面URL数量是", len(UrlSet))
 #------------------------------------------------
 #从首页开始递归查找每一个URL地址
 for EachUrlOuter in UrlSet:

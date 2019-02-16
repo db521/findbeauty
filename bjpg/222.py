@@ -8,4 +8,4 @@ for a in range(1,11):
     b0=str(x)
     x1=x+100
     b1=str(x1)
-    print p.sub(b0+"/"+b1,s)
+    print (p.sub(b0+"/"+b1,s))

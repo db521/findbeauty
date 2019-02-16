@@ -9,11 +9,11 @@ def one_page_jpg(pageNum):
         if each_url not in second_filter:
             second_filter.append(each_url)
     path=r'd:\\data\\'#图片存储的路径
-    print "图片的个数是",len(second_filter)#打印不重复的图片地址数量
+    print("图片的个数是", len(second_filter))  # 打印不重复的图片地址数量
     for imgurl in second_filter:#当前的图片名称个数是从前面的图片列表的长度来定义的
         r=requests.get(imgurl)#打开图片网址
         content=r.content#获取请求的内容
         with open(path+imgurl[-17:], 'wb') as f: f.write(content)#文件的名称使用路径加网址后面的jpg部分作为标题，此处使用了切片操作
-        print "正在下载",imgurl[-17:]
+        print("正在下载", imgurl[-17:])
 
 

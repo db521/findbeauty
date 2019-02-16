@@ -28,8 +28,8 @@ def toText2(image_file):
  
 image_file = Image.open(r"d:\1.jpg") # 打开图片
 image_file=image_file.resize((int(image_file.size[0]*0.9), int(image_file.size[1]*0.5)))#调整图片大小
- 
-print u'Info:',image_file.size[0],' ',image_file.size[1],' ',count 
+
+print(u'Info:', image_file.size[0], ' ', image_file.size[1], ' ', count)
 try:
    os.remove('./tmp.txt')
 except  WindowsError:

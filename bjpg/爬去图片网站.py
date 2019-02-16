@@ -45,7 +45,7 @@ def PreDownloadImg(AnalysisPage):
 #下载图片的函数
 def DownloadImg(ImgUrl):
     #根据http://img1.mm131.com/img/2335/20.jpg，具体的图片地址写入文件
-    print "download函数：即将下载的页面是",ImgUrl
+    print("download函数：即将下载的页面是", ImgUrl)
     WaitAnalysisPage = requests.get(ImgUrl)
     ImgContent=WaitAnalysisPage.content
     ImgUrlCode=WaitAnalysisPage.status_code
@@ -61,7 +61,9 @@ def DownloadImg(ImgUrl):
         ImgName=ImgUrlSub[22:]
         CreateFolder(ImgPath)
         with open(ImgPath+ImgName, 'wb') as f: f.write(ImgContent)
-        print "正在下载",ImgUrl,"页面的图片",ImgName
+        print("正在下载", ImgUrl, "页面的图片", ImgName)
+
+
 #创建图片目录
 def CreateFolder(FolderPath):
     if not os.path.exists(FolderPath):
@@ -72,26 +74,26 @@ FindUrlResult=FindUrl(HomePage)
 #把结果使用extend方法写入到首页url列表中
 HomePageUrl.extend(FindUrlResult)
 UrlSet=set(HomePageUrl)
-print "UrlSet的内容是",UrlSet
-print "首页页面URL数量是",len(UrlSet)
+print("UrlSet的内容是", UrlSet)
+print("首页页面URL数量是", len(UrlSet))
 #------------------------------------------------
 #从首页开始递归查找每一个URL地址
 for EachUrlOuter in UrlSet:
     #递归查找每一个页面的子页面
     for EachUrlInner in FindShortUrl(EachUrlOuter):
         #把外层递归的每一个URL地址的纯数字网址后半截，替换为内层递归的值，也就是从2331.html替换为2332_1.html等
-        print "外层URL的地址是",EachUrlOuter
-        print "内层的URL地址是",EachUrlInner
+        print("外层URL的地址是", EachUrlOuter)
+        print("内层的URL地址是", EachUrlInner)
         RegShortUrl=re.compile(r'\d+.html')
         RegUrlSub=RegShortUrl.sub(EachUrlInner,EachUrlOuter)
-        print "替换以后的URL地址是",RegUrlSub
+        print("替换以后的URL地址是", RegUrlSub)
         #替换以后的页面，就是子页面的集合
         EachUrlNew=FindUrl(RegUrlSub)
         AllUrl.extend(EachUrlNew)
         AllUrlSet=set(AllUrl)
         #对于每个子页面，调用下载前分析函数，准备下载
         for EachPage in AllUrlSet:
-            print "即将分析的页面是",EachPage
+            print("即将分析的页面是", EachPage)
             with open(DownloadPath+'a.txt', 'ab') as f: f.write('\n'+EachPage+'\n')
             PreDownloadImg(EachPage)
-        print "已经下载完的图片数量是",len(AllUrlSet)
+        print("已经下载完的图片数量是", len(AllUrlSet))

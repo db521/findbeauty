@@ -17,7 +17,8 @@ class downloader:
         r = requests.head(self.url)
         # 取出资源的字节数
         self.total = int(r.headers['Content-Length'])
-        print 'total is %s' % (self.total)
+        print('total is %s' % (self.total))
+
     def get_range(self):
         ranges=[]
         # 比如total是50,线程数是4个。offset就是12
@@ -37,7 +38,7 @@ class downloader:
         # 获取数据段
         res = requests.get(self.url,headers=headers)
         # seek到指定位置
-        print '%s:%s download success'%(start,end)
+        print('%s:%s download success' % (start, end))
         self.fd.seek(start)
         self.fd.write(res.content)
     def run(self):
@@ -48,7 +49,7 @@ class downloader:
         n = 0
         for ran in self.get_range():
             start,end = ran
-            print 'thread %d start:%s,end:%s'%(n,start,end)
+            print('thread %d start:%s,end:%s' % (n, start, end))
             n+=1
             # 开线程
             thread = threading.Thread(target=self.download,args=(start,end))
@@ -57,7 +58,7 @@ class downloader:
         for i in thread_list:
             # 设置等待
             i.join()
-        print 'download %s load success'%(self.name)
+        print('download %s load success' % (self.name))
         self.fd.close()
 if __name__=='__main__':
     # 新建实例

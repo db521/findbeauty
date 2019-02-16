@@ -9,4 +9,4 @@ b=[2,3,5]
 for m in a:
     if m in b:
         l.append(m)
-print l
+print(l)

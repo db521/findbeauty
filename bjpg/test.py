@@ -52,11 +52,11 @@ d=max(b)
 c='/'
 b=getLinuxDiskInfo('/')
 for x in a:
-    print "%-d.4s"%x,
-print
+    print("%-d.4s" % x, end=' ')
+print()
 for y in b:
-    print "%-10.4s"%y+'G',
-print "%-10.4s"%c
+    print("%-10.4s" % y + 'G', end=' ')
+print("%-10.4s" % c)
 #
 
 # a=['size','used','avail','Used','mount on']

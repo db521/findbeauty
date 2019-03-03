@@ -27,14 +27,8 @@ path = 'g:/mp4/'
 
 def downloadfile(urlAndfile):
     for x in urlAndfile:
-        filename = x[0]
-        url = x[1]
-        b = origin + 'videos/'
-        x = filename.replace(b, '')
-        if ' ' in x:
-            filename = x.replace(' ', '-')
-        else:
-            filename = x
+
+
         file_name = filename + '.mp4'
         if not os.path.exists(path + file_name):
             r1 = requests.get(url, proxies=proxies, cookies=cookies, headers=headers)
@@ -53,15 +47,9 @@ def downloadfile(urlAndfile):
 
 # 启动线程的数量
 def newT():
-    all = c.execute('select url,download_url from video_url where download_url not null').fetchall()
+    all = c.execute('select v.access_url,d.download_url from videos v,dload d where v.video_id=d.video_id').fetchall()
     num_proc = 20
-    equal_mount_job = {}  # 按照线程数量平均分配到每个线程基本相同的活
-    x = 0
-    for i in range(num_proc):
-        y = x + len(all) // num_proc + 1
-        equal_mount_job[i] = all[x:y]
-        x = y
-
+    equal_mount_job=[all[x:x+num_proc] for x in range(0,len(all),num_proc)]# 按照线程数量平均分配到每个线程基本相同的活
     thread_list = list()
     for i in range(num_proc):
         t = threading.Thread(target=downloadfile, args=(equal_mount_job[i],))  # 平均分配后的一个列表传给下载函数

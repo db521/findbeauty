@@ -20,7 +20,8 @@ import sqlite3
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-
+from selenium.webdriver.common.keys import Keys
+from selenium.webdriver.common.action_chains import ActionChains
 with open('temp.txt', 'r') as f:
     soup = BeautifulSoup(f, "html.parser")
 
@@ -47,7 +48,7 @@ class Download:
         self.mp4url = 'https://voyeurhit.com/videos/'
         self.path = 'g:/mp4/'
         self.chrome_options = Options()
-        self.chrome_options.add_argument('--headless')
+        # self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument('--disable-dev-shm-usage')
         self.chrome_options.add_argument('--disable-gpu')
@@ -125,26 +126,29 @@ class Download:
         url_id_dict = {}
         i = 0
         driver = webdriver.Chrome(options=self.chrome_options)
+
         try:
             for k, v in url_id:
                 gurl = self.mp4url + k + '/'
                 try:
                     driver.get(gurl)
+                    ActionChains(driver).key_down(Keys.CONTROL).send_keys("t").key_up(Keys.CONTROL).perform()
                     aurl = gurl.replace(self.mp4url, '').rstrip('/')
                     with open('sucess.log', 'a+') as f:
                         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + "get完了：" + aurl, v, file=f)
+                    time.sleep(5)
                     download_url = driver.execute_script(
                         "return window.pl3748.getConfig().playlistItem.allSources[1].file")
                     with open('sucess.log', 'a+') as f:
                         print('获取到值了：' + download_url, file=f)
                     url_id_dict[download_url] = v
                 except TimeoutException:
-                    driver.quit()
+                    pass
                 except WebDriverException:
                     print('/' * 40)
                     print('没有获取到值，退出浏览器，重新来')
                     print('/' * 40)
-                driver.quit()
+
             print('/' * 40)
             print('待入库的数量为：', len(url_id_dict))
             self.inserttable(url_id_dict, table_name='dload')

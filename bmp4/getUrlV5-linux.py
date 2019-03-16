@@ -3,7 +3,6 @@
 # @Time : 2019/3/2 10:36 
 # @File : getUrlV5.py
 import os
-import random
 import re
 import sys
 import threading
@@ -12,17 +11,16 @@ import time
 import urllib3
 from requests.exceptions import ProxyError
 from selenium.common.exceptions import WebDriverException, TimeoutException
-
-urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
-
 from bs4 import BeautifulSoup
 
 import sqlite3
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.common.keys import Keys
-from selenium.webdriver.common.action_chains import ActionChains
+from bypy import ByPy
+
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+
 with open('temp.txt', 'r') as f:
     soup = BeautifulSoup(f, "html.parser")
 
@@ -32,22 +30,28 @@ class Download:
         self.conn = sqlite3.connect('test.db', check_same_thread=False)
         self.c = self.conn.cursor()
         self.cookies = {
-            'cookies': '__cfduid=d1a50478a43f118736847d328be2cceab1548462867; __auc=18766a7b1688794bd51aa5ed3ed; _ga=GA1.2.1831337609.1548462899; _ym_uid=1548462899440317366; _ym_d=1548462899; PHPSESSID=6q1fsaso7vg7j8hh62nbm5ikb1; splash_i=false; platform=d; visitCount=3; kt_qparams=dir%3Dbela-encoxada; video_log=bela-encoxada%3A1552208857%3B; kt_ips=97; kt_tcookie=1; countcli=1552295188479; kt_is_visited=1; _gid=GA1.2.1005628207.1552208791; _ym_isad=2; __atuvc=0%7C7%2C0%7C8%2C12%7C9%2C31%7C10%2C2%7C11'}
+            'cookies': '__cfduid=d1a50478a43f118736847d328be2cceab1548462867; __auc=18766a7b1688794bd51aa5ed3ed; '
+                       '_ga=GA1.2.1831337609.1548462899; _ym_uid=1548462899440317366; _ym_d=1548462899; '
+                       'PHPSESSID=6q1fsaso7vg7j8hh62nbm5ikb1; splash_i=false; platform=d; visitCount=3; '
+                       'kt_qparams=dir%3Dbela-encoxada; video_log=bela-encoxada%3A1552208857%3B; ktps=97; '
+                       'kt_tcookie=1; countcli=1552295188479; kt_is_visited=1; _gid=GA1.2.1005628207.1552208791; '
+                       '_ym_isad=2; __atuvc=0%7C7%2C0%7C8%2C12%7C9%2C31%7C10%2C2%7C11'}
         self.headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
                                       'Chrome/69.0.3497.81 Safari/537.36'}
         self.caturl = 'https://voyeurhit.com/categories/'
         self.mp4url = 'https://voyeurhit.com/videos/'
-        self.path = 'g:/mp4/'
+        self.path = 'mp4/'
         self.chrome_options = Options()
         self.chrome_options.add_argument('--headless')
         self.chrome_options.add_argument('--no-sandbox')
         self.chrome_options.add_argument('--disable-dev-shm-usage')
         # self.chrome_options.add_argument('--disable-gpu')
         prefs = {"profile.managed_default_content_settings.images": 2,
-                 'profile.default_content_setting_values.notifications':2}
+                 'profile.default_content_setting_values.notifications': 2}
 
         self.chrome_options.add_experimental_option("prefs", prefs)
         # self.chrome_options.add_argument("--proxy-server=http://" + '127.0.0.1:1080')
+
     def homepage(self):  # 首页解析目录和当前页的视频
         catdict = {}
         mp4dict = {}
@@ -89,7 +93,7 @@ class Download:
                 elif table_name == 'dload':
                     sql = "insert into dload(download_url,video_id)VALUES (%s,%d)" % ('"' + k + '"', v)
                 elif table_name == 'categories':
-                    sql = f"insert into categories(cat_url,times)VALUES (%s,%d)" % ('"' + k + '"', v)
+                    sql = "insert into categories(cat_url,times)VALUES (%s,%d)" % ('"' + k + '"', v)
                 elif table_name == 'dlog':
                     sql = "insert into dlog(url,max)VALUES (%s,%d)" % ('"' + k + '"', v)
 
@@ -98,12 +102,14 @@ class Download:
                     lock.acquire(True)
                     self.c.execute(sql)
                     with open('debug.log', 'a+') as f:
-                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '我是即将入库的sql:', sql, file=f)
+                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '我是即将入库的sql:', sql, file
+                        =f)
                 except sqlite3.IntegrityError:
                     continue
                 except sqlite3.ProgrammingError:
                     with open('debug.log', 'a+') as f1:
-                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '我是入库失败的sql:', sql, file=f1)
+                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '我是入库失败的sql:', sql, file
+                        =f1)
                     lock.acquire(True)
                     self.c.execute(sql)
                 finally:
@@ -128,6 +134,8 @@ class Download:
                         "return window.pl3748.getConfig().playlistItem.allSources[1].file")
                     with open('debug.log', 'a+') as f:
                         print('获取到值了：' + download_url, file=f)
+                    url_file = {k: download_url}
+                    self.dfile(url_file)#直接下载文件到本地
                     url_id_dict[download_url] = v
                 except TimeoutException:
                     (sys.path[0] + '/pngs/' + str(driver.title) + '.png')
@@ -143,9 +151,8 @@ class Download:
             print(e)
         finally:
             self.inserttable(url_id_dict, table_name='dload')
-            print(threading.currentThread().getName(),'当前线程大结局了')
+            print(threading.currentThread().getName(), '当前线程大结局了')
             driver.quit()
-
 
     def getvideo(self, names_times):  # 插入videos表
         mp4dict = {}  # 存视频及基础信息
@@ -155,7 +162,7 @@ class Download:
                 rurl = self.caturl + cat_name + '/' + str(i) + '/'
                 print(threading.currentThread().getName(), '当前目录url：' + rurl)
                 try:
-                    r = requests.get(rurl, proxies=self.proxies, cookies=self.cookies, verify=False,
+                    r = requests.get(rurl, cookies=self.cookies, verify=False,
                                      headers=self.headers)
                     if r.status_code == 200:
                         soup1 = BeautifulSoup(r.text, "html.parser")
@@ -176,25 +183,28 @@ class Download:
                     time.sleep(5)
             dlogdict[cat_name] = times
 
-            print(threading.currentThread().getName().ident, '一次大循环完事了:' + cat_name)
+            print(threading.currentThread().getName(), '一次大循环完事了:' + cat_name)
             self.inserttable(mp4dict, table_name='videos')  # 入库
             self.inserttable(dlogdict, table_name='dlog')  # 入库
             mp4dict = {}
             continue
 
     def dfile(self, url_file):  # 根据文件名和下载地址直接写入文件夹
-        for filename, durl in url_file:
+        print('准备下载文件到本地了')
+        for filename, durl in url_file.items():
             file_name = filename + '.mp4'
             absfile = self.path + file_name
             if not os.path.exists(absfile):
-                r1 = requests.get(durl, proxies=self.proxies, cookies=self.cookies, verify=False,
+                r1 = requests.get(durl, cookies=self.cookies, verify=False,
                                   headers=self.headers)
                 if r1.status_code == 200:
                     file1 = r1.content
                     print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ':开始写入文件：：', absfile)
                     with open(absfile, 'wb') as file_text:
                         file_text.write(file1)
-                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ':写入成功!文件为：：', absfile)
+                        print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ':写入成功!文件为：：', absfile
+                              )
+                    self.upbaidu(absfile)#调度上传网盘的操作
                 else:
                     with open('error.log', 'a+') as f1:
                         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '请求url有问题，不能下载', durl, file_name,
@@ -202,10 +212,20 @@ class Download:
             else:
                 print(file_name + '文件已经存在了，继续下载下一个')
 
+    def upbaidu(self, file):  # 根据文件名上传到百度网盘
+        print('准备上传', file, '到百度网盘')
+        bp = ByPy()
+        bp.upload(localpath=file, remotepath='bypy', ondup='newcopy')
+        print(file + ' 上传到百度网盘完毕！')
+        if os.path.exists(file):
+            os.remove(file)
+        else:
+            print(file + ' 文件本地不存在，不用删除')
+
     def newT(self, sql, type):  # 启动线程的数量,type=1是插入dload库，=0是执行下载函数
         alljob = self.c.execute(sql).fetchall()
         print('总任务数是：', len(alljob))
-        num_proc =10
+        num_proc = 10
         # 如果任务数/线程数<=2，就直接拆分为1份就可以
         singlejob = len(alljob) // num_proc + 1 if len(alljob) // num_proc + 1 > 2 else len(alljob) // num_proc
         equal_mount_job = [alljob[x:x + singlejob] for x in range(0, len(alljob), singlejob)]  # 按照线程数量平均分配到每个线程基本相同的活

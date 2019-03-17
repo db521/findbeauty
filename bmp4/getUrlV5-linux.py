@@ -17,7 +17,8 @@ import sqlite3
 import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from bypy import ByPy
+
+# from bypy import ByPy
 
 urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
@@ -135,7 +136,7 @@ class Download:
                     with open('debug.log', 'a+') as f:
                         print('获取到值了：' + download_url, file=f)
                     url_file = {k: download_url}
-                    self.dfile(url_file)#直接下载文件到本地
+                    self.dfile(url_file)  # 直接下载文件到本地
                     url_id_dict[download_url] = v
                 except TimeoutException:
                     (sys.path[0] + '/pngs/' + str(driver.title) + '.png')
@@ -204,7 +205,7 @@ class Download:
                         file_text.write(file1)
                         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + ':写入成功!文件为：：', absfile
                               )
-                    self.upbaidu(absfile)#调度上传网盘的操作
+                    # self.upbaidu(absfile)#调度上传网盘的操作
                 else:
                     with open('error.log', 'a+') as f1:
                         print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()) + '请求url有问题，不能下载', durl, file_name,
@@ -214,13 +215,13 @@ class Download:
 
     def upbaidu(self, file):  # 根据文件名上传到百度网盘
         print('准备上传', file, '到百度网盘')
-        bp = ByPy()
-        bp.upload(localpath=file, remotepath='bypy', ondup='newcopy')
-        print(file + ' 上传到百度网盘完毕！')
-        if os.path.exists(file):
-            os.remove(file)
-        else:
-            print(file + ' 文件本地不存在，不用删除')
+        # bp = ByPy()
+        # bp.upload(localpath=file, remotepath='bypy', ondup='newcopy')
+        # print(file + ' 上传到百度网盘完毕！')
+        # if os.path.exists(file):
+        #     os.remove(file)
+        # else:
+        #     print(file + ' 文件本地不存在，不用删除')
 
     def newT(self, sql, type):  # 启动线程的数量,type=1是插入dload库，=0是执行下载函数
         alljob = self.c.execute(sql).fetchall()
@@ -246,7 +247,7 @@ class Download:
 
 
 if __name__ == '__main__':
-    jobdload = 'select v.access_url,d.download_url from videos v,dload d where v.video_id=d.video_id'
+    jobdload = 'select v.access_url,d.download_url from bigvides v,dload d where v.video_id=d.video_id'
     # Download().newT(jobdload,type=0)#多线程下载
     jobdurlinsert = 'select access_url,video_id from videos where video_id not in (select video_id from dload)'
     Download().newT(jobdurlinsert, type=1)  # getdurl 多线程入库
